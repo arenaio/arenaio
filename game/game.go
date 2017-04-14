@@ -61,11 +61,11 @@ func Run(g Game, botBinaries []string) (int, error) {
 		firstRound := round == 1
 
 		for b := 0; b < botCount; b++ {
-			var lines []string
+			lines := make([]string, 0)
 			if firstRound {
 				lines = g.GetInitInputForPlayer(b)
 			}
-			lines = g.GetInputForPlayer(round, b)
+			lines = append(lines, g.GetInputForPlayer(round, b))
 
 			for _, line := range lines {
 				buffer.WriteString(line)
