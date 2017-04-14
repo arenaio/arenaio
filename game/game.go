@@ -23,25 +23,53 @@ type Game interface {
 	SetPlayerTimeout(frame int, round int, playerIdx int)
 	GetMaxRoundCount(playerCount int) int
 	GetMillisTimeForRound() int
+	GetMillisTimeForFirstRound() int
 	InitReferee(playerCount int, prop Properties)
 	GetFrameDataForView(round int, frame int, keyFrame bool) []string
 	GetInitDataForView() []string
 }
 
 func Run(g Game, botBinaries []string) int {
+	botCount := len(botBinaries)
+
 	// shuffle bot positions
-	botIndexes := make([]int, len(botBinaries))
-	for i := 0; i < len(botIndexes); i++ {
+	botIndexes := make([]int, botCount)
+	for i := 0; i < botCount; i++ {
 		botIndexes[i] = i
 	}
-	for i := len(botIndexes) - 1; i > 0; i-- {
+	for i := botCount - 1; i > 0; i-- {
 		j := rand.Int() % (i + 1)
 		botBinaries[i], botBinaries[j] = botBinaries[j], botBinaries[i]
 		botIndexes[i], botIndexes[j] = botIndexes[j], botIndexes[i]
 	}
 
-	time.Sleep(100 * time.Millisecond)
-	winner := rand.Int()%(len(botBinaries)+1) - 1
+	// TODO: initialize bot processes
+	// TODO: init pipes
+
+	winner := -1
+	for round := 1; round <= g.GetMaxRoundCount(botCount); round++ {
+		firstRound := round == 1
+
+		for b := 0; b < botCount; b++ {
+			if firstRound {
+				// TODO: start process
+				g.GetInitInputForPlayer(0)
+			}
+
+			g.GetInputForPlayer(round, 0)
+
+			// TODO: send input
+			// TODO: wait for output
+			// TODO: handle timeout ?
+		}
+
+		// TODO: update gme & check end state
+		g.UpdateGame(round)
+		time.Sleep(time.Millisecond)
+	}
+
+	// TODO: evaluate winner
+	winner = rand.Int()%(len(botBinaries)+1) - 1
 
 	// no mapping required for draw games
 	if winner == -1 {

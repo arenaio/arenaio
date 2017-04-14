@@ -1,7 +1,7 @@
 package tictactoe
 
 import (
-	. ".."
+	. "github.com/KevinBusse/arenaio/game"
 )
 
 type TicTacToe struct{}
@@ -71,11 +71,15 @@ func (t *TicTacToe) SetPlayerTimeout(frame int, round int, playerIdx int) {
 }
 
 func (t *TicTacToe) GetMaxRoundCount(playerCount int) int {
-	return -1
+	return 9
 }
 
 func (t *TicTacToe) GetMillisTimeForRound() int {
-	return -1
+	return 20
+}
+
+func (t *TicTacToe) GetMillisTimeForFirstRound() int {
+	return 10
 }
 
 func (t *TicTacToe) InitReferee(playerCount int, prop Properties) {

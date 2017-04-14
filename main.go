@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"./game"
-	"./game/tictactoe"
+	"github.com/KevinBusse/arenaio/game"
+	"github.com/KevinBusse/arenaio/game/tictactoe"
 )
 
 func main() {
