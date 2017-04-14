@@ -9,6 +9,7 @@ import (
 
 type Process struct {
 	m            sync.Mutex
+	idx          int
 	name         string
 	processState *os.ProcessState
 	inPipe       io.WriteCloser
@@ -16,7 +17,7 @@ type Process struct {
 }
 
 // Creates a new bot process with given binary name
-func NewProcess(name string, args ...string) (*Process, error) {
+func NewProcess(name string, idx int, args ...string) (*Process, error) {
 	cmd := exec.Command(name, args...)
 	pr, err := cmd.StdinPipe()
 	if err != nil {
@@ -36,6 +37,7 @@ func NewProcess(name string, args ...string) (*Process, error) {
 
 	// wire up the process with a pipe reader/writer
 	process := &Process{
+		idx:     idx,
 		name:    name,
 		inPipe:  pr,
 		outPipe: pw,
@@ -67,6 +69,10 @@ func (p *Process) Alive() bool {
 		return !p.processState.Exited()
 	}
 	return true
+}
+
+func (p *Process) Idx() int {
+	return p.idx
 }
 
 // io.Reader interface

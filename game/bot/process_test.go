@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewBotProcess(t *testing.T) {
-	bot, err := bot.NewProcess("sleep", "1")
+	bot, err := bot.NewProcess("sleep", 0, "1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -27,7 +27,7 @@ func TestNewBotProcess(t *testing.T) {
 }
 
 func TestBotProcess_ReadWrite(t *testing.T) {
-	bashBot, err := bot.NewProcess("bash")
+	bashBot, err := bot.NewProcess("bash", 0)
 	if err != nil {
 		t.Error(err)
 	}

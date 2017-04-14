@@ -22,8 +22,8 @@ func (t *TicTacToe) Prepare(round int) {
 
 }
 
-func (t *TicTacToe) GetInputForPlayer(round int, playerIdx int) {
-
+func (t *TicTacToe) GetInputForPlayer(round int, playerIdx int) []string {
+	return nil
 }
 
 func (t *TicTacToe) GetExpectedOutputLineCountForPlayer(playerIdx int) int {

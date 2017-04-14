@@ -50,7 +50,11 @@ func main() {
 	games := 0.0
 	for {
 		games++
-		result := game.Run(g, botBinaries)
+		result, err := game.Run(g, botBinaries)
+		if err != nil {
+			println(err)
+			os.Exit(5)
+		}
 
 		if result == -1 {
 			botScores[len(botScores)-1]++

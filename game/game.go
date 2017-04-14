@@ -1,15 +1,22 @@
 package game
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"math/rand"
+	"os"
+	"sync"
 	"time"
+
+	"github.com/KevinBusse/arenaio/game/bot"
 )
 
 type Game interface {
 	GetConfiguration() Properties
 	GetInitInputForPlayer(playerIdx int) []string
 	Prepare(round int)
-	GetInputForPlayer(round int, playerIdx int)
+	GetInputForPlayer(round int, playerIdx int) []string
 	GetExpectedOutputLineCountForPlayer(playerIdx int) int
 	HandlePlayerOutput(frame int, round int, playerIdx int, outputs []string)
 	UpdateGame(round int)
@@ -29,43 +36,81 @@ type Game interface {
 	GetInitDataForView() []string
 }
 
-func Run(g Game, botBinaries []string) int {
+func Run(g Game, botBinaries []string) (int, error) {
 	botCount := len(botBinaries)
 
-	// shuffle bot positions
-	botIndexes := make([]int, botCount)
+	// initialize bots
+	bots := make(map[int]*bot.Process, botCount)
 	for i := 0; i < botCount; i++ {
-		botIndexes[i] = i
+		bot, err := bot.NewProcess(botBinaries[i], i)
+		if err != nil {
+			return -1, err
+		}
+		bots[i] = bot
 	}
+
+	// shuffle bot positions
 	for i := botCount - 1; i > 0; i-- {
 		j := rand.Int() % (i + 1)
-		botBinaries[i], botBinaries[j] = botBinaries[j], botBinaries[i]
-		botIndexes[i], botIndexes[j] = botIndexes[j], botIndexes[i]
+		bots[i], bots[j] = bots[j], bots[i]
 	}
 
-	// TODO: initialize bot processes
-	// TODO: init pipes
-
 	winner := -1
+	buffer := &bytes.Buffer{}
 	for round := 1; round <= g.GetMaxRoundCount(botCount); round++ {
 		firstRound := round == 1
 
 		for b := 0; b < botCount; b++ {
+			var lines []string
 			if firstRound {
-				// TODO: start process
-				g.GetInitInputForPlayer(0)
+				lines = g.GetInitInputForPlayer(b)
+			}
+			lines = g.GetInputForPlayer(round, b)
+
+			for _, line := range lines {
+				buffer.WriteString(line)
 			}
 
-			g.GetInputForPlayer(round, 0)
+			n, err := buffer.WriteTo(bots[b])
+			fmt.Fprintf(os.Stderr, "Debug: %d bytes written to bot %d\n", n, b)
+			if err != nil {
+				return -1, err
+			}
+			buffer.Reset()
 
-			// TODO: send input
-			// TODO: wait for output
-			// TODO: handle timeout ?
+			wg := sync.WaitGroup{}
+			wg.Add(1)
+			go func() {
+				waitFor := 50 * time.Millisecond
+				if firstRound {
+					waitFor = 100 * time.Millisecond
+				}
+				time.Sleep(waitFor)
+				wg.Done()
+			}()
+			wg.Wait()
+
+			n, err = buffer.ReadFrom(bots[b])
+			fmt.Fprintf(os.Stderr, "Debug: Read %d bytes from bot %d\n", n, b)
+			if err != nil {
+				return -1, err
+			}
+
+			lines = make([]string, 0)
+			for {
+				line, err := buffer.ReadString('\n')
+				if err == io.EOF {
+					break
+				}
+				lines = append(lines, line)
+			}
+			// describe frame?
+			g.HandlePlayerOutput(0, round, b, lines)
+			buffer.Reset()
 		}
 
 		// TODO: update gme & check end state
 		g.UpdateGame(round)
-		time.Sleep(time.Millisecond)
 	}
 
 	// TODO: evaluate winner
@@ -73,9 +118,9 @@ func Run(g Game, botBinaries []string) int {
 
 	// no mapping required for draw games
 	if winner == -1 {
-		return winner
+		return winner, nil
 	}
 
 	// map winner index id to bot index
-	return botIndexes[winner]
+	return bots[winner].Idx(), nil
 }
