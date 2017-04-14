@@ -1,8 +1,12 @@
-package main
+package tictactoe
+
+import (
+	. ".."
+)
 
 type TicTacToe struct{}
 
-func NewTicTacToe() *TicTacToe {
+func New() *TicTacToe {
 	return &TicTacToe{}
 }
 
@@ -78,12 +82,10 @@ func (t *TicTacToe) InitReferee(playerCount int, prop Properties) {
 
 }
 
-func (t *TicTacToe) GetFrameDataForView(round int, frame int, keyFrame bool) [] string {
+func (t *TicTacToe) GetFrameDataForView(round int, frame int, keyFrame bool) []string {
 	return nil
 }
 
 func (t *TicTacToe) GetInitDataForView() []string {
 	return nil
 }
-
-
