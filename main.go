@@ -1,71 +1,80 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-
-	"github.com/KevinBusse/arenaio/game"
-	"github.com/KevinBusse/arenaio/game/tictactoe"
+	"log"
+	//"bufio"
 )
 
+// arenaio -r=tictactoe -p1=theNewB:12 -p2=KB:7
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Program requires at least game name\n\n\tUsage: code-runner [Game] [...Bot]")
+	referee := flag.String("r", "", "a string")
+	player1 := flag.String("p1", "", "a string")
+	player2 := flag.String("p2", "", "a string")
+
+	flag.Parse()
+
+	if len(*referee) == 0 {
+		log.Fatalln("Referee is required")
 		os.Exit(1)
 	}
 
-	var g game.Game
-
-	switch os.Args[1] {
-	case "tictactoe":
-		g = tictactoe.New()
-	default:
-		fmt.Fprintf(os.Stderr, "Game %q is unknown.\n", os.Args[1])
-		os.Exit(2)
+	if len(*player1) == 0 {
+		log.Fatalln("Player 1 is required")
+		os.Exit(1)
 	}
 
-	if len(os.Args) < 2+g.GetMinimumPlayerCount() {
-		fmt.Fprintf(os.Stderr, "The game %s requires at least %d players.\n", g.GetGameName(), g.GetMinimumPlayerCount())
-		os.Exit(3)
+	if len(*player2) == 0 {
+		log.Fatalln("Player 2 is required")
 	}
 
-	botBinaries := os.Args[2:]
+	run(referee, player1, player2)
+}
 
-	// Check that AI binaries are present
-	for _, bot := range botBinaries {
-		if _, err := os.Stat(bot); os.IsNotExist(err) {
-			fmt.Printf("Bot %q couldn't be found.\n", bot)
-			os.Exit(4)
-		}
+func run(referee, player1, player2 *string) {
+	fmt.Printf("Referee:  %s\nPlayer 1: %s\nPlayer 2: %s\n", *referee, *player1, *player2)
+
+	p1, err := NewContainerProcess(*player1)
+
+	err = p1.cmd.Start()
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	botScores := make([]float64, len(botBinaries)+1)
-
-	fmt.Printf("%q", botBinaries[0])
-	for i := 1; i < len(botBinaries); i++ {
-		fmt.Printf(" | %q", botBinaries[i])
-	}
-	fmt.Println(" | Draw")
-
-	games := 0.0
-	for {
-		games++
-		result, err := game.Run(g, botBinaries)
-		if err != nil {
-			println(err)
-			os.Exit(5)
-		}
-
-		if result == -1 {
-			botScores[len(botScores)-1]++
-		} else {
-			botScores[result]++
-		}
-
-		fmt.Printf("%.1f%%", 100*botScores[0]/games)
-		for i := 1; i < len(botScores); i++ {
-			fmt.Printf(" | %.1f%%", 100*botScores[i]/games)
-		}
-		fmt.Println()
-	}
+	//go func() {
+	//	//defer p1stdin.Close()
+	//	line := fmt.Sprintf("%d", 1)
+	//	fmt.Printf("StdIn: %s", line)
+	//	//io.WriteString(p1stdin, line)
+	//	writer := bufio.NewWriter(p1stdin)
+	//	writer.WriteString(line)
+	//}()
+	//
+	//go func() {
+	//	scanner := bufio.NewScanner(p1stdout)
+	//	for scanner.Scan() {
+	//		fmt.Printf("StdOut: %s\n", scanner.Text())
+	//	}
+	//	if err := scanner.Err(); err != nil {
+	//		fmt.Fprintln(os.Stderr, "reading standard output:", err)
+	//	}
+	//}()
+	//
+	//go func() {
+	//	scanner := bufio.NewScanner(p1stderr)
+	//	for scanner.Scan() {
+	//		fmt.Printf("StdErr: %s\n", scanner.Text())
+	//	}
+	//	if err := scanner.Err(); err != nil {
+	//		fmt.Fprintln(os.Stderr, "reading standard error:", err)
+	//	}
+	//}()
+	//
+	//err = p1.Wait()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 }
