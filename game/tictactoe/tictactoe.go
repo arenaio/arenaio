@@ -1,7 +1,7 @@
 package tictactoe
 
 import (
-	. "github.com/KevinBusse/arenaio/game"
+	. "github.com/arenaio/arenaio/game"
 )
 
 type TicTacToe struct{}

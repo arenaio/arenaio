@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/KevinBusse/arenaio/game/bot"
+	"github.com/arenaio/arenaio/game/bot"
 )
 
 type Game interface {

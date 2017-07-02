@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KevinBusse/arenaio/game/bot"
+	"github.com/arenaio/arenaio/game/bot"
 )
 
 func TestNewBotProcess(t *testing.T) {

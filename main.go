@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	//"fmt"
 	"os"
 	"log"
 	//"bufio"
+	"fmt"
 )
 
 // arenaio -r=tictactoe -p1=theNewB:12 -p2=KB:7
@@ -35,14 +36,40 @@ func main() {
 }
 
 func run(referee, player1, player2 *string) {
-	fmt.Printf("Referee:  %s\nPlayer 1: %s\nPlayer 2: %s\n", *referee, *player1, *player2)
+	//fmt.Printf("Referee:  %s\nPlayer 1: %s\nPlayer 2: %s\n", *referee, *player1, *player2)
 
 	p1, err := NewContainerProcess(*player1)
-
-	err = p1.cmd.Start()
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	// init Referee
+
+	// TODO: Ask Referee what to do next
+	// TODO: switch
+	// case EndOfGame
+	// case pX send input
+	// case pX request output
+
+	p1.in <- "1"
+
+	for {
+		select {
+			case out := <- p1.out:
+				fmt.Println("out:", out)
+			case err := <- p1.err:
+				fmt.Println("err:", err)
+		}
+	}
+
+	p1.cmd.Wait()
+
+	//<-p1.err
+
+	//log.Println("err:", <-p1.err)
+	//log.Println("out:", <-p1.out)
+
+
 
 	//go func() {
 	//	//defer p1stdin.Close()
