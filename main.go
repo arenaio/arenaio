@@ -2,14 +2,15 @@ package main
 
 import (
 	"flag"
-	//"fmt"
-	"os"
 	"log"
-	//"bufio"
+	"os"
 	"fmt"
+	"time"
+	"sync"
 )
 
 // arenaio -r=tictactoe -p1=theNewB:12 -p2=KB:7
+
 
 func main() {
 	referee := flag.String("r", "", "a string")
@@ -38,7 +39,7 @@ func main() {
 func run(referee, player1, player2 *string) {
 	//fmt.Printf("Referee:  %s\nPlayer 1: %s\nPlayer 2: %s\n", *referee, *player1, *player2)
 
-	p1, err := NewContainerProcess(*player1)
+	p1, err := NewContainerProcess(*player1, 1)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -50,58 +51,29 @@ func run(referee, player1, player2 *string) {
 	// case EndOfGame
 	// case pX send input
 	// case pX request output
-
-	p1.in <- "1"
-
-	for {
-		select {
-			case out := <- p1.out:
-				fmt.Println("out:", out)
-			case err := <- p1.err:
-				fmt.Println("err:", err)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	go func() {
+		for p1.Alive() {
+			_, err := p1.Write([]byte(fmt.Sprintln("1")))
+			if err != nil {
+				log.Println(err)
+			}
+			time.Sleep(time.Second)
 		}
-	}
+		wg.Done()
+	}()
 
-	p1.cmd.Wait()
-
-	//<-p1.err
-
-	//log.Println("err:", <-p1.err)
-	//log.Println("out:", <-p1.out)
-
-
-
-	//go func() {
-	//	//defer p1stdin.Close()
-	//	line := fmt.Sprintf("%d", 1)
-	//	fmt.Printf("StdIn: %s", line)
-	//	//io.WriteString(p1stdin, line)
-	//	writer := bufio.NewWriter(p1stdin)
-	//	writer.WriteString(line)
-	//}()
-	//
-	//go func() {
-	//	scanner := bufio.NewScanner(p1stdout)
-	//	for scanner.Scan() {
-	//		fmt.Printf("StdOut: %s\n", scanner.Text())
-	//	}
-	//	if err := scanner.Err(); err != nil {
-	//		fmt.Fprintln(os.Stderr, "reading standard output:", err)
-	//	}
-	//}()
-	//
-	//go func() {
-	//	scanner := bufio.NewScanner(p1stderr)
-	//	for scanner.Scan() {
-	//		fmt.Printf("StdErr: %s\n", scanner.Text())
-	//	}
-	//	if err := scanner.Err(); err != nil {
-	//		fmt.Fprintln(os.Stderr, "reading standard error:", err)
-	//	}
-	//}()
-	//
-	//err = p1.Wait()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	go func () {
+		for p1.Alive() {
+			var line string
+			_, err := fmt.Fscan(p1, &line)
+			if err != nil {
+				log.Println("Err:", err)
+			}
+			fmt.Print(line)
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 }
