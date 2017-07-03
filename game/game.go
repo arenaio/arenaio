@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -65,7 +66,7 @@ func Run(g Game, botBinaries []string) (int, error) {
 			if firstRound {
 				lines = g.GetInitInputForPlayer(b)
 			}
-			lines = append(lines, g.GetInputForPlayer(round, b))
+			lines = append(lines, strings.Join(g.GetInputForPlayer(round, b), "\n"))
 
 			for _, line := range lines {
 				buffer.WriteString(line)
