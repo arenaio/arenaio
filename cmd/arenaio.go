@@ -2,15 +2,16 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
-	"fmt"
-	"time"
 	"sync"
+	"time"
+
+	"github.com/arenaio/arenaio/pkg/bot"
 )
 
 // arenaio -r=tictactoe -p1=theNewB:12 -p2=KB:7
-
 
 func main() {
 	referee := flag.String("r", "", "a string")
@@ -39,7 +40,7 @@ func main() {
 func run(referee, player1, player2 *string) {
 	//fmt.Printf("Referee:  %s\nPlayer 1: %s\nPlayer 2: %s\n", *referee, *player1, *player2)
 
-	p1, err := NewContainerProcess(*player1, 1)
+	p1, err := bot.NewContainerProcess(*player1, 1)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -64,7 +65,7 @@ func run(referee, player1, player2 *string) {
 		wg.Done()
 	}()
 
-	go func () {
+	go func() {
 		for p1.Alive() {
 			var line string
 			_, err := fmt.Fscan(p1, &line)
