@@ -2,6 +2,7 @@ package tictactoe
 
 import (
 	. "github.com/arenaio/arenaio/game"
+	"github.com/arenaio/arenaio/pkg/game"
 )
 
 type TicTacToe struct{}
@@ -10,7 +11,7 @@ func New() *TicTacToe {
 	return &TicTacToe{}
 }
 
-func (t *TicTacToe) GetConfiguration() Properties {
+func (t *TicTacToe) GetConfiguration() game.Properties {
 	return nil
 }
 
@@ -38,7 +39,7 @@ func (t *TicTacToe) UpdateGame(round int) {
 
 }
 
-func (t *TicTacToe) PopulateMessages(p Properties) {
+func (t *TicTacToe) PopulateMessages(p game.Properties) {
 
 }
 
@@ -82,7 +83,7 @@ func (t *TicTacToe) GetMillisTimeForFirstRound() int {
 	return 10
 }
 
-func (t *TicTacToe) InitReferee(playerCount int, prop Properties) {
+func (t *TicTacToe) InitReferee(playerCount int, prop game.Properties) {
 
 }
 

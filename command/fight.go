@@ -1,4 +1,4 @@
-package game
+package command
 
 import (
 	"bytes"
@@ -10,34 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/arenaio/arenaio/game/bot"
+	"github.com/arenaio/arenaio/pkg/bot"
+	"github.com/arenaio/arenaio/pkg/game"
 )
 
-type Game interface {
-	GetConfiguration() Properties
-	GetInitInputForPlayer(playerIdx int) []string
-	Prepare(round int)
-	GetInputForPlayer(round int, playerIdx int) []string
-	GetExpectedOutputLineCountForPlayer(playerIdx int) int
-	HandlePlayerOutput(frame int, round int, playerIdx int, outputs []string)
-	UpdateGame(round int)
-	PopulateMessages(p Properties)
-	GetGameName() string
-	GetMinimumPlayerCount() int
-	GetPlayerActions(playerIdx int, round int) []string
-	IsPlayerDead(playerIdx int) bool
-	GetDeathReason(playerIdx int) string
-	GetScore(playerIdx int) int
-	SetPlayerTimeout(frame int, round int, playerIdx int)
-	GetMaxRoundCount(playerCount int) int
-	GetMillisTimeForRound() int
-	GetMillisTimeForFirstRound() int
-	InitReferee(playerCount int, prop Properties)
-	GetFrameDataForView(round int, frame int, keyFrame bool) []string
-	GetInitDataForView() []string
-}
-
-func Run(g Game, botBinaries []string) (int, error) {
+func Run(g game.Referee, botBinaries []string) (int, error) {
 	botCount := len(botBinaries)
 
 	// initialize bots

@@ -11,6 +11,6 @@ Please follow this guide when logging issues or making code changes.
 
 ## Logging Issues
 
-All issues should be created using the [new issue form](https://git.office.sevenval.de/products/FDX-Dashboard/issues/new?issue). 
+All issues should be created using the [new issue form](https://github.com/arenaio/arenaio/issues/new). 
 Clearly describe the issue including steps to reproduce if there are any.  
 Also, make sure to indicate the earliest version that has the issue being reported.
